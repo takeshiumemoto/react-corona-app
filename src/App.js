@@ -6,6 +6,7 @@ import countriesJson from './countries.json';
 import WorldPage from "./pages/WorldPage";
 
 function App() {
+  const [loading, setLoading] = useState(false);
   const [country, setCountry] = useState("");
   const [countryData, setCountryData] = useState({
     date: "",
@@ -29,6 +30,7 @@ function App() {
   }, []);
 
   const getCountryData = () => {
+    setLoading(true);
     if (country) {
       fetch(`https://monotein-books.vercel.app/api/corona-tracker/country/${country}`)
         .then(res => res.json())
@@ -42,10 +44,15 @@ function App() {
               totalRecovered: data[data.length - 1].Recovered
             });
           }
+          setLoading(false);
         })
-        .catch(error => console.error("Error fetching country data:", error));
+        .catch(error => {
+          console.error("Error fetching country data:", error);
+          setLoading(false);
+        });
     } else {
       console.error("No country selected");
+      setLoading(false);
     }
   };
 
@@ -60,13 +67,14 @@ function App() {
               setCountry={setCountry} 
               getCountryData={getCountryData} 
               countryData={countryData} 
+              loading={loading}
             />
           } 
         />
         <Route 
           path="/world" 
           element={
-            <WorldPage allCountriesData={allCountriesData} getAllCountriesData={getAllCountriesData} />
+            <WorldPage allCountriesData={allCountriesData} />
           } 
         />
       </Routes>
